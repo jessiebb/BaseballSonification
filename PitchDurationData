@@ -1,0 +1,46 @@
+from music import*
+from string import*
+from array import*
+
+#later get input from user for game ID
+data = open("C:/Users/Jessie/Desktop/baseball scoring/Jython/201103310.txt","r")
+
+HomePitchesData = []
+HomeDurationsData = []
+for line in data:
+   
+  HomePitches, HomeDurations = split(line)
+  HomePitches = HomePitches
+  HomeDurations = HomeDurations
+  HomePitchesData.append(HomePitches)
+  HomeDurationsData.append(HomeDurations)
+
+data.close() 
+
+#def item as int()
+
+HomePitchesData = [item for item in HomePitchesData for item in 
+
+item.split(',')]
+HomeDurationsData = [item for item in HomeDurationsData for item in 
+
+item.split(',')]
+
+HomePitchesData = map(float, HomePitchesData)
+HomeDurationsData = map(float, HomeDurationsData)
+print HomePitchesData
+print HomeDurationsData
+
+s = Score("Game 201103310", 40)
+homePart = Part("Home team",PIANO,0)#part name, instrument id,channel
+#part2 = Part("Away team",89,1)
+homePhrase = Phrase(0.0)
+#phr2 = Phrase(0.0)
+homePhrase.addNoteList(HomePitchesData, HomeDurationsData)
+#phr2.addNoteList(pitches2, durations2)
+homePart.addPhrase(homePhrase)
+#part2.addPhrase(phr2)
+s.addPart(homePart)
+#s.addPart(part2)
+
+Play.midi(s)
