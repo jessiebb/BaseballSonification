@@ -1,0 +1,399 @@
+Sub TexttoCol()
+
+' TexttoCol Macro
+
+    Columns("A:A").Select
+    Selection.TextToColumns Destination:=Range("A1"), DataType:=xlDelimited, _
+        TextQualifier:=xlDoubleQuote, ConsecutiveDelimiter:=False, Tab:=True, _
+        Semicolon:=False, Comma:=True, Space:=False, Other:=False
+
+
+'Sub GameID()
+'Add game ID to all rows associated with that game
+    lrow = Cells(Rows.Count, "A").End(xlUp).Row
+    ActiveSheet.Range("$A$1:$I" & lrow).AutoFilter Field:=1, Criteria1:=Array( _
+        "id"), Operator:=xlFilterValues
+    Range("I1:I" & lrow).Select
+    Selection.SpecialCells(xlCellTypeVisible).Select
+    Selection.Formula = "=B1"
+    
+    ActiveSheet.Range("$A$2:$I" & lrow).AutoFilter
+    lrow = Cells(Rows.Count, "A").End(xlUp).Row
+    Range("I2:I" & lrow).Select
+      On Error Resume Next
+    Selection.SpecialCells(xlCellTypeBlanks).Select
+  
+    Selection.FormulaR1C1 = "=R[-1]C"
+    Range("A1:A" & lrow).Replace What:="sub", Replacement:="start"
+    
+ 
+    
+    'Sub PlayerID()
+    lrow = Cells(Rows.Count, "A").End(xlUp).Row
+    ActiveSheet.Range("$A$1:$J" & lrow).AutoFilter Field:=1, Criteria1:="start"
+    Range("J2:J" & lrow).Select
+    Selection.SpecialCells(xlCellTypeVisible).Select
+    Selection.FormulaR1C1 = "=RC[-8]&RC[-1]"
+    ActiveSheet.ShowAllData
+    Selection.End(xlUp).Select
+    ActiveSheet.Range("$A$1:$J" & lrow).AutoFilter Field:=1, Criteria1:="play"
+    Range("J2:J" & lrow).Select
+    Selection.SpecialCells(xlCellTypeVisible).Select
+    Selection.FormulaR1C1 = "=RC[-6]&RC[-1]"
+    ActiveSheet.ShowAllData
+
+'Sub CopyVal()
+'
+' Copy Game and PlayerGame codes and paste as values
+    lrow = Cells(Rows.Count, "A").End(xlUp).Row
+    Range("I1:J" & lrow).Select
+    Selection.Copy
+    Range("I1").Select
+    Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+        :=False, Transpose:=False
+
+'Sub DeleteRowsBB()
+'
+' DeleteRowsBB Macro
+
+'Remove non-lineup/play rows
+   lrow = Cells(Rows.Count, "A").End(xlUp).Row
+    Range("A1:A" & lrow).Select
+    
+    ActiveSheet.Range("$A$1:$A" & lrow).AutoFilter Field:=1, Criteria1:=Array( _
+        "com", "data", "info", "version", "badj"), Operator:=xlFilterValues
+    Range("A2:A" & lrow).Select
+
+    On Error Resume Next
+    Selection.SpecialCells(xlCellTypeVisible).Select
+    Selection.EntireRow.Delete
+    ActiveSheet.ShowAllData
+
+
+
+
+'Sub NamingColumns()
+'
+' NamingColumns Macro
+    Range("C1").Value = "Home or away"
+    Range("D1").Value = "PlayerID"
+    Range("E1").Value = "Count"
+    Range("F1").Value = "Pitches"
+    Range("G1").Value = "Defense"
+    Range("H1").Value = "BatterNo."
+    Range("I1").Value = "GameID"
+    Range("J1").Value = "PlayerGameID"
+    Range("K1").Value = "Home note"
+    Range("L1").Value = "Away note"
+    Range("M1").Value = "Home duration"
+    Range("N1").Value = "Away duration"
+
+
+'Sub sort()
+'
+' sort Macro
+    lrow = Cells(Rows.Count, "A").End(xlUp).Row
+    Range("$A$1:$J" & lrow).AutoFilter Field:=1, Criteria1:=Array( _
+        "play", "start"), Operator:=xlFilterValues
+          ActiveSheet.Sort.SortFields.Add Key:=Range( _
+        "I1:I" & lrow), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:= _
+xlSortNormal
+        ActiveSheet.Sort.SortFields.Add Key:=Range( _
+        "A1:A" & lrow), SortOn:=xlSortOnValues, Order:=xlDescending, DataOption:= _
+        xlSortNormal
+   With ActiveSheet.Sort
+        .SetRange Range("A1:J" & lrow)
+        .Header = xlGuess
+        .MatchCase = False
+        .Orientation = xlTopToBottom
+        .SortMethod = xlPinYin
+        .Apply
+    End With
+  ActiveSheet.ShowAllData
+
+
+
+'Sub BatterNos()
+'
+' Add batter number and copy as values
+    lrow = Cells(Rows.Count, "A").End(xlUp).Row
+    Range("H2:H" & lrow).Select
+    Selection.FormulaR1C1 = "=INDEX(C[-2],MATCH(RC[2],C[2],0))"
+    Range("H2:H" & lrow).Select
+    Selection.Copy
+    Range("H2").Select
+    Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+        :=False, Transpose:=False
+
+'Sub HomeAwayNotes()
+    'copy contents from Defense and Batter columns into home and away team
+
+    lrow = Cells(Rows.Count, "A").End(xlUp).Row
+    ActiveSheet.Range("$A$1:$J" & lrow).AutoFilter Field:=1, Criteria1:="play"
+      
+    Range("K2:K" & lrow).Select
+    Selection.SpecialCells(xlCellTypeVisible).Select
+    Selection.FormulaR1C1 = "=IF(RC[-8]=0,RC[-4],RC[-3])"
+    Range("L2:L" & lrow).Select
+    Selection.SpecialCells(xlCellTypeVisible).Select
+    Selection.FormulaR1C1 = "=IF(RC[-9]=1,RC[-5],RC[-4])"
+    ActiveSheet.ShowAllData
+    Range("K2:L" & lrow).Copy
+    Range("K2").Select
+    Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+        :=False, Transpose:=False
+
+
+'Sub RemoveNP()
+'
+' RemoveNP and delete play data after slash
+
+    lrow = Cells(Rows.Count, "A").End(xlUp).Row
+    On Error GoTo SlashReplace
+    ActiveSheet.Range("$A$1:$J" & lrow).AutoFilter Field:=7, Criteria1:="NP"
+    Range("A2:A" & lrow).Select
+    Selection.SpecialCells(xlCellTypeVisible).Select
+    Selection.EntireRow.Delete
+    ActiveSheet.ShowAllData
+    
+    
+'Sub FandR()
+    
+    
+SlashReplace:
+ On Error Resume Next
+    Columns("K:L").Select
+    Selection.Replace What:="E", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+        
+    Selection.Replace What:="BK", Replacement:="1", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+        
+    Selection.Replace What:="/*", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+    
+    Selection.Replace What:=".*", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+   
+    Selection.Replace What:=";*", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+    
+    Selection.Replace What:="!", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+
+    Selection.Replace What:="!", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+        
+     Selection.Replace What:="(B)", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+        
+    Selection.Replace What:="(", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+        
+        Selection.Replace What:=")", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+        
+        Selection.Replace What:="+WP", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+        
+    Selection.Replace What:="+", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+        
+    Selection.Replace What:="K", Replacement:="1", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+                
+    Selection.Replace What:="!", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+    
+        Selection.Replace What:="FC", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+        
+     Selection.Replace What:="POCS1", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+        
+   
+        
+Selection.Replace What:="POCS2", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+Selection.Replace What:="POCS3", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+Selection.Replace What:="POCSH", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+Selection.Replace What:="PO1", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+Selection.Replace What:="PO2", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+Selection.Replace What:="PO3", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+Selection.Replace What:="CS1", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+Selection.Replace What:="CS2", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+Selection.Replace What:="CS3", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+Selection.Replace What:="CSH", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+Selection.Replace What:="SB1", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+Selection.Replace What:="SB2", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+Selection.Replace What:="SB3", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+Selection.Replace What:="PO", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+Selection.Replace What:="SH", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+Selection.Replace What:="CS", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+Selection.Replace What:="SBH", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+Selection.Replace What:="S", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+Selection.Replace What:="T", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+Selection.Replace What:="DGR", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+        
+      Selection.Replace What:="DI", Replacement:="REST", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+                
+Selection.Replace What:="D", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+        
+        
+Selection.Replace What:="FL", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+            
+            Selection.Replace What:="-", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+        
+        Selection.Replace What:=")", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+        
+            Selection.Replace What:="(", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+        
+        Selection.Replace What:=")", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+        
+  Selection.Replace What:="DGR", Replacement:="REST", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+        
+
+    Selection.Replace What:="HP", Replacement:="REST", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+        
+
+     Selection.Replace What:="PB", Replacement:="REST", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+     
+     Selection.Replace What:="WP", Replacement:="REST", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+        
+     Selection.Replace What:="IW", Replacement:="REST", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+        
+     
+     Selection.Replace What:="W", Replacement:="REST", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+        
+    Selection.Replace What:="C", Replacement:="2", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+        
+    Selection.Replace What:="HR/*", Replacement:="REST", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+        
+    Selection.Replace What:="HR", Replacement:="REST", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+        
+    Range("K1").Value = "Home note"
+    Range("L1").Value = "Away note"
+
+'Sub HomeAwayDurations()
+    'get note values
+    
+    lrow = Cells(Rows.Count, "A").End(xlUp).Row
+    Range("M2:M" & lrow).Select
+'    Selection.FormulaR1C1 = "=IF(RC[-2]=""REST"",""REST"",TRUNC(1/LEN(RC[-2]),12))"
+'    Range("N2:N" & lrow).Select
+'    Selection.FormulaR1C1 = "=IF(RC[-2]=""REST"",""REST"",TRUNC(1/LEN(RC[-2]),12))"
+'    Range("M2:N" & lrow).Copy
+Selection.Replace What:="REST", Replacement:="1", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+ Selection.Replace What:="2", Replacement:=".5,.5", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+Selection.Replace What:="3", Replacement:=".333333333333,.333333333333,.333333333333", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+Selection.Replace What:="4", Replacement:=".25,.25,.25,.25", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+Selection.Replace What:="5", Replacement:=".2,.2,.2,.2,.2", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+    
+    Range("M2").Select
+    Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+        :=False, Transpose:=False
+
+'Sub FandRDurations()
+
+ 
+End Sub
+
+
+
