@@ -3,44 +3,75 @@ from string import*
 from array import*
 
 #later get input from user for game ID
-data = open("C:/Users/Jessie/Desktop/baseball scoring/Jython/201103310.txt","r")
+
+data = open("C:/Users/Jessie/Desktop/baseball scoring/Jython/CHA20090723norest.txt","r")
 
 HomePitchesData = []
 HomeDurationsData = []
+AwayPitchesData = []
+AwayDurationsData = []
+
 for line in data:
    
-  HomePitches, HomeDurations = split(line)
-  HomePitches = HomePitches
+  GameID, HomeDurations, AwayDurations, HomePitches, AwayPitches = split(line)
+  GameID = GameID
   HomeDurations = HomeDurations
+  AwayDurations = AwayDurations
+  HomePitches = HomePitches
+  AwayPitches = AwayPitches  
+  
   HomePitchesData.append(HomePitches)
+  AwayPitchesData.append(AwayPitches)
   HomeDurationsData.append(HomeDurations)
+  AwayDurationsData.append(AwayDurations)
 
 data.close() 
 
-#def item as int()
-
-HomePitchesData = [item for item in HomePitchesData for item in 
-
-item.split(',')]
-HomeDurationsData = [item for item in HomeDurationsData for item in 
-
-item.split(',')]
+HomePitchesData = [item for item in HomePitchesData for item in item.split(',')]
+AwayPitchesData = [item for item in AwayPitchesData for item in item.split(',')]
+HomeDurationsData = [item for item in HomeDurationsData for item in item.split(',')]
+AwayDurationsData = [item for item in AwayDurationsData for item in item.split(',')]
 
 HomePitchesData = map(float, HomePitchesData)
+AwayPitchesData = map(float, AwayPitchesData)
 HomeDurationsData = map(float, HomeDurationsData)
-print HomePitchesData
-print HomeDurationsData
+AwayDurationsData = map(float, AwayDurationsData)
 
+minHomePitch = min(HomePitchesData)
+maxHomePitch = max(HomePitchesData)
+minAwayPitch = min(AwayPitchesData)
+maxAwayPitch = max(AwayPitchesData)
+
+HomePitchesMapped = []
+AwayPitchesMapped = []
+
+for pitchH in HomePitchesData:
+   pitchH = mapScale(pitchH, minHomePitch, maxHomePitch, 60, 76, MAJOR_SCALE)
+   HomePitchesMapped.append(pitchH)
+   
+for pitchA in AwayPitchesData:
+   pitchA = mapScale(pitchA, minAwayPitch, maxAwayPitch, 60, 76, MAJOR_SCALE)
+   AwayPitchesMapped.append(pitchA)
+   
 s = Score("Game 201103310", 40)
 homePart = Part("Home team",PIANO,0)#part name, instrument id,channel
-#part2 = Part("Away team",89,1)
-homePhrase = Phrase(0.0)
-#phr2 = Phrase(0.0)
-homePhrase.addNoteList(HomePitchesData, HomeDurationsData)
-#phr2.addNoteList(pitches2, durations2)
-homePart.addPhrase(homePhrase)
-#part2.addPhrase(phr2)
+awayPart = Part("Away team",10,1)
+
+homePhrase1 = Phrase(0.0)
+homePhrase2 = Phrase(0.0)
+homePhrase3 = Phrase(0.0)
+awayPhrase = Phrase(0.0)
+
+homePhrase1.addNoteList(HomePitchesMapped, HomeDurationsData)
+homePhrase2.addNoteList(
+awayPhrase.addNoteList(AwayPitchesMapped, AwayDurationsData)
+
+homePart.addPhrase(homePhrase1)
+homePart.addPhrase(homePhrase2)
+homePart.addPhrase(homePhrase3)
+awayPart.addPhrase(awayPhrase)
 s.addPart(homePart)
-#s.addPart(part2)
+s.addPart(awayPart)
 
 Play.midi(s)
+#View.notation(s)
