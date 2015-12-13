@@ -1,5 +1,16 @@
-Sub TexttoCol()
 
+
+Function InsertComma(Text As String) As String
+If Len(Text) < 2 Then InsertComma = Text
+Dim i As Integer
+Dim T As String
+T = Left(Text, 1)
+For i = 2 To Len(Text) Step 2
+T = T & "," & Mid(Text, i, 1)
+Next i
+InsertComma = T
+End Function
+Sub TexttoCol()
 ' TexttoCol Macro
 
     Columns("A:A").Select
@@ -361,39 +372,50 @@ Selection.Replace What:="FL", Replacement:="", LookAt:=xlPart, _
     Range("K1").Value = "Home note"
     Range("L1").Value = "Away note"
 
-'Sub HomeAwayDurations()
     'get note values
     
     lrow = Cells(Rows.Count, "A").End(xlUp).Row
     Range("M2:M" & lrow).Select
-'    Selection.FormulaR1C1 = "=IF(RC[-2]=""REST"",""REST"",TRUNC(1/LEN(RC[-2]),12))"
-'    Range("N2:N" & lrow).Select
-'    Selection.FormulaR1C1 = "=IF(RC[-2]=""REST"",""REST"",TRUNC(1/LEN(RC[-2]),12))"
-'    Range("M2:N" & lrow).Copy
-Selection.Replace What:="REST", Replacement:="1", LookAt:=xlPart, _
-        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
-        ReplaceFormat:=False
- Selection.Replace What:="2", Replacement:=".5,.5", LookAt:=xlPart, _
-        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
-        ReplaceFormat:=False
-Selection.Replace What:="3", Replacement:=".333333333333,.333333333333,.333333333333", LookAt:=xlPart, _
-        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
-        ReplaceFormat:=False
-Selection.Replace What:="4", Replacement:=".25,.25,.25,.25", LookAt:=xlPart, _
-        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
-        ReplaceFormat:=False
-Selection.Replace What:="5", Replacement:=".2,.2,.2,.2,.2", LookAt:=xlPart, _
-        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
-        ReplaceFormat:=False
-    
+    Selection.FormulaR1C1 = "=IF(RC[-2]=""REST"",1,IF(RC[-10]=1,1,LEN(RC[-2])))"
+    Range("N2:N" & lrow).Select
+    Selection.FormulaR1C1 = "=IF(RC[-2]=""REST"",1,IF(RC[-11]=0,1,LEN(RC[-2])))"
+    Range("M2:N" & lrow).Copy
     Range("M2").Select
     Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
         :=False, Transpose:=False
-
-'Sub FandRDurations()
-
- 
+        
+'Selection.Replace What:="REST", Replacement:="1", LookAt:=xlPart, _
+'        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+'        ReplaceFormat:=False
+ Selection.Replace What:="2", Replacement:=".5,.5", LookAt:=xlWhole, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+Selection.Replace What:="3", Replacement:=".333333333333,.333333333333,.333333333333", LookAt:=xlWhole, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+Selection.Replace What:="4", Replacement:=".25,.25,.25,.25", LookAt:=xlWhole, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+Selection.Replace What:="5", Replacement:=".2,.2,.2,.2,.2", LookAt:=xlWhole, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+        
+'Separate batter pitches with commas
+Range("O2:O" & lrow).Select
+ Selection.FormulaR1C1 = "=IF(RC[-4]=""REST"",""REST"",IF(RC[-12]=0,InsertComma(RC[-4]),RC[-4]))"
+   
+Range("P2:P" & lrow).Select
+    Selection.FormulaR1C1 = "=IF(RC[-4]=""REST"",""REST"",IF(RC[-13]=1,InsertComma(RC[-4]),RC[-4]))"
+   
+  Range("I:I,M:P").Select
+    Range("M1").Activate
+    Selection.Copy
+    Workbooks.Add
+    Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+        :=False, Transpose:=False
 End Sub
+
+
 
 
 
