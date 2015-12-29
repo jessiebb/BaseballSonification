@@ -63,29 +63,34 @@ for pitchA in AwayPitchesData:
 for pitchA in AwayPitchesData:
    pitchA = mapScale(pitchA, minAwayPitch, maxAwayPitch, 67, 83, MIXOLYDIAN_SCALE)
    AwayPitchesMapped3.append(pitchA)   
-   
-s = Score("Game 201103310", 40)
-homePart = Part("Home team",10,0)#part name, instrument id,channel
-awayPart1 = Part("Away team",46,1)
-awayPart2 = Part("Away team",46,1)
-awayPart3 = Part("Away team",46,1)
+
+inst = 9
+s = Score("Game 201103310", 60)
+homePart = Part("Home team",inst,0)#part name, instrument id,channel
+awayPart1 = Part("Away team",inst,1)
+awayPart2 = Part("Away team",inst,1)
+awayPart3 = Part("Away team",inst,1)
 
 homePhrase1 = Phrase(0.0)
-#homePhrase2 = Phrase(0.0)
-#homePhrase3 = Phrase(0.0)
 awayPhrase1 = Phrase(0.0)
 awayPhrase2 = Phrase(0.0)
 awayPhrase3 = Phrase(0.0)
 
 homePhrase1.addNoteList(HomePitchesMapped, HomeDurationsData)
-#homePhrase2.addNoteList(
 awayPhrase1.addNoteList(AwayPitchesMapped1, AwayDurationsData)
 awayPhrase2.addNoteList(AwayPitchesMapped2, AwayDurationsData)
 awayPhrase3.addNoteList(AwayPitchesMapped3, AwayDurationsData)
 
+
+lastMeasure = Note(REST,WN)
+#add final measure of rest to allow music box to ring
+homePhrase1.addNote(lastMeasure)
+awayPhrase1.addNote(lastMeasure)
+awayPhrase2.addNote(lastMeasure)
+awayPhrase3.addNote(lastMeasure)
+
+
 homePart.addPhrase(homePhrase1)
-#homePart.addPhrase(homePhrase2)
-#homePart.addPhrase(homePhrase3)
 awayPart1.addPhrase(awayPhrase1)
 awayPart2.addPhrase(awayPhrase2)
 awayPart3.addPhrase(awayPhrase3)
