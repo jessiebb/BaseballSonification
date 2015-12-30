@@ -64,7 +64,7 @@ for pitchA in AwayPitchesData:
    pitchA = mapScale(pitchA, minAwayPitch, maxAwayPitch, 67, 83, MIXOLYDIAN_SCALE)
    AwayPitchesMapped3.append(pitchA)   
 
-inst = 9
+inst = 10
 s = Score("Game 201103310", 60)
 homePart = Part("Home team",inst,0)#part name, instrument id,channel
 awayPart1 = Part("Away team",inst,1)
